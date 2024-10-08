@@ -1,0 +1,5 @@
+package com.betacom.front_end.configuration;
+
+public class WebSecurityConfig {
+
+}

@@ -1,0 +1,14 @@
+package com.betacom.objects;
+
+public class Impiegati extends User{
+	Long Salary;
+
+	public Long getSalary() {
+		return Salary;
+	}
+
+	public void setSalary(Long salary) {
+		Salary = salary;
+	}
+	
+}

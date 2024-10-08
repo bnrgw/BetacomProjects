@@ -1,0 +1,13 @@
+import com.betacom.objects.Fiat500;
+
+public class MainAbtract {
+
+	public static void main(String[] args) {
+		
+		Fiat500 c = new Fiat500();
+		c.freni();
+		c.speed();
+
+	}
+
+}

@@ -1,0 +1,36 @@
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<link rel="stylesheet" href='../css/style.css'>
+<meta charset="ISO-8859-1">
+<title>Project JPA</title>
+</head>
+<body>
+<nav th:insert= "~{fragments/navigation :: block-navigation('Elenco Attivita')}"></nav>
+
+<div>
+	   <a th:href="@{/createAttivita}">Create</a>
+	</div>
+
+<div>
+		<table align=center>
+			<thead>
+				<tr>
+					<th>Nome</th>
+					<th>Azione</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="attivita : ${listAll.dati}">
+					<td th:text="${attivita.descrizione}"></td>
+					
+					<td>
+					 <a th:href = "@{/deleteAttivita(attID=${attivita.id})}">Delete</a>
+					 </td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+</body>
+</html>

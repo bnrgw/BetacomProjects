@@ -1,0 +1,38 @@
+package com.betacom;
+
+import com.betacom.objects.BMW;
+import com.betacom.objects.Fiat500;
+import com.betacom.objects.User;
+import com.betacom.processi.implementations.UserProcess;
+import com.betacom.processi.interfaces.MyInterface;
+
+public class MainAbtractInterface {
+
+	public static void main(String[] args) {
+		
+		Fiat500 c = new Fiat500();
+		c.setModel("500");
+		c.freni();
+		c.speed();
+		System.out.println("Model :" + c.getModel());
+
+		BMW b = new BMW();
+		b.setColor("verde");
+		b.freni();
+		b.speed();
+		System.out.println("Color :" + b.getColor());
+		
+		
+		User user1 = new User("Pippo", "Franco");
+		User user2 = new User("Gérard", "Smal");
+		
+		MyInterface proc = new UserProcess();
+		proc.insertNewSalary(user1);
+		proc.insertNewSalary(user2);
+		
+		System.out.println("User " + user1.getNome() + " " + user1.getCognome() + " ha un stipendio di " + user1.getSalary());
+		System.out.println("User " + user2.getNome() + " " + user2.getCognome() + " ha un stipendio di " + user2.getSalary());
+		
+	}
+
+}

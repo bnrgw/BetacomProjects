@@ -1,0 +1,8 @@
+package com.betacom.objects;
+
+public class test {
+	ObjectCollection obj;
+	private void myTest() {
+		obj.nome = "pippo";
+	}
+}

@@ -1,0 +1,39 @@
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+<link rel="stylesheet" href="../css/style.css">
+<meta charset="UTF-8">
+<title>Create User</title>
+</head>
+<body>
+	<nav
+		th:insert="~{fragments/navigation :: block-navigation(' Creare Utente')}"></nav>
+	<div class="container">
+		<h3 class="descrption">Inserire i dati</h3>
+
+		<div align="center">
+
+			<form action="@{/admin/saveUser}" th:object=${req} method=post>
+				<div>
+					<input type="text" th:field="*{userName}" placeholder="Nome utente" />
+				</div>
+
+				<div>
+					<input type="password" th:field="*{password}"
+						placeholder="Password" />
+				</div>
+
+				<div>
+					<select th:field="*{role}">
+						<option value="USER">USER</option>
+						<option value="ADMIN">ADMIN</option>
+					</select>
+				</div>
+				<button type="submit">Create</button>
+				<div class="container-error" th:if="*{errorMSG} != null">
+				<span th:text="*{errorMSG}" style="color:red">***</span>
+			</div>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<link rel="stylesheet" href='../css/style.css'>
+<meta charset="ISO-8859-1">
+<title>Project JPA</title>
+</head>
+<body>
+<nav th:insert= "~{fragments/navigation :: block-navigation('Elenco soci per attivita')}"></nav>
+
+ <div>
+		<table align=center>
+			<thead>
+				<tr>
+					<th>Nome</th>
+					<th>Cognome</th>
+					<th>Codice fiscale</th>
+					
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="socio : ${listAll.dati}">
+					<td th:text="${socio.nome}"></td>
+					<td th:text="${socio.cognome}"></td>
+					<td th:text="${socio.cFiscale}"></td>
+					
+					</tr>
+			</tbody>
+		</table>
+		<div align ="center">
+		<br>
+		 <a  th:href = "@{/removeAttivita(attID=${attivita.id})}" >Remove Attivita</a>
+		 </div>
+	</div>
+</body>
+</html>

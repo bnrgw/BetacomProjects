@@ -1,0 +1,26 @@
+2024-08-26T10:09:37.813+02:00  INFO 4644 --- [projectJPA] [main] com.betacom.jpa.JpaApplication           : Starting JpaApplication using Java 17.0.11 with PID 4644 (C:\Users\Betacom\eclipse-workspace\projectJPA\target\classes started by Betacom in C:\Users\Betacom\eclipse-workspace\projectJPA)
+2024-08-26T10:09:37.845+02:00 DEBUG 4644 --- [projectJPA] [main] com.betacom.jpa.JpaApplication           : Running with Spring Boot v3.2.7, Spring v6.1.10
+2024-08-26T10:09:37.857+02:00  INFO 4644 --- [projectJPA] [main] com.betacom.jpa.JpaApplication           : No active profile set, falling back to 1 default profile: "default"
+2024-08-26T10:09:52.144+02:00  INFO 4644 --- [projectJPA] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-08-26T10:09:52.893+02:00  INFO 4644 --- [projectJPA] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 704 ms. Found 7 JPA repository interfaces.
+2024-08-26T10:09:56.458+02:00  INFO 4644 --- [projectJPA] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 9090 (http)
+2024-08-26T10:09:56.547+02:00  INFO 4644 --- [projectJPA] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-08-26T10:09:56.548+02:00  INFO 4644 --- [projectJPA] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
+2024-08-26T10:09:57.030+02:00  INFO 4644 --- [projectJPA] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-08-26T10:09:57.032+02:00  INFO 4644 --- [projectJPA] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 18312 ms
+2024-08-26T10:09:57.934+02:00  INFO 4644 --- [projectJPA] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-08-26T10:09:59.651+02:00  INFO 4644 --- [projectJPA] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6c951ada
+2024-08-26T10:09:59.655+02:00  INFO 4644 --- [projectJPA] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-08-26T10:10:00.072+02:00  INFO 4644 --- [projectJPA] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-08-26T10:10:01.191+02:00  INFO 4644 --- [projectJPA] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.9.Final
+2024-08-26T10:10:01.627+02:00  INFO 4644 --- [projectJPA] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-08-26T10:10:03.151+02:00  INFO 4644 --- [projectJPA] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-08-26T10:10:07.622+02:00  INFO 4644 --- [projectJPA] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-08-26T10:10:07.782+02:00  INFO 4644 --- [projectJPA] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-08-26T10:10:09.020+02:00  INFO 4644 --- [projectJPA] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-08-26T10:10:11.834+02:00  WARN 4644 --- [projectJPA] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-08-26T10:10:14.036+02:00  INFO 4644 --- [projectJPA] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 9090 (http) with context path ''
+2024-08-26T10:10:14.068+02:00  INFO 4644 --- [projectJPA] [main] com.betacom.jpa.JpaApplication           : Started JpaApplication in 41.901 seconds (process running for 58.896)
+2024-08-26T10:11:09.304+02:00  INFO 4644 --- [projectJPA] [http-nio-9090-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-08-26T10:11:09.308+02:00  INFO 4644 --- [projectJPA] [http-nio-9090-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-08-26T10:11:09.310+02:00  INFO 4644 --- [projectJPA] [http-nio-9090-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms

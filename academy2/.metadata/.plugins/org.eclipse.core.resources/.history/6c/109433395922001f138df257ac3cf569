@@ -1,0 +1,7 @@
+package com.betacom.objects.interfaces;
+
+public interface MyInterface {
+	
+	
+
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="java.lang.System"/>
+    <fullyQualifiedTypeName name="com.betacom.objects.interfaces.MyInterface"/>
+    <fullyQualifiedTypeName name="com.betacom.car.servizi.implementazione.GestioneMacchina"/>
+    <fullyQualifiedTypeName name="com.betacom.car.exception.AcademyException"/>
+    <fullyQualifiedTypeName name="com.betacom.car.oggetti.Veicolo"/>
+    <fullyQualifiedTypeName name="com.betacom.car.oggetti.singleton.Mysingleton"/>
+    <fullyQualifiedTypeName name="com.betacom.car.serviziinterface.GestioneVeicolo"/>
+    <fullyQualifiedTypeName name="java.text.DateFormat"/>
+    <fullyQualifiedTypeName name="java.util.GregorianCalendar"/>
+    <fullyQualifiedTypeName name="java.text.ParseException"/>
+    <fullyQualifiedTypeName name="java.sql.Date"/>
+    <fullyQualifiedTypeName name="java.util.Calendar"/>
+    <fullyQualifiedTypeName name="com.betacom.car.oggetti.singleton.ReadFile"/>
+    <fullyQualifiedTypeName name="java.util.Collections"/>
+    <fullyQualifiedTypeName name="com.betacom.CSV.object.User"/>
+    <fullyQualifiedTypeName name="java.security.KeyRep.Type"/>
+    <fullyQualifiedTypeName name="com.betacom.azienda.dto.Istruttore"/>
+    <fullyQualifiedTypeName name="java.util.stream.IntStream"/>
+    <fullyQualifiedTypeName name="java.util.Arrays"/>
+    <fullyQualifiedTypeName name="java.sql.DriverManager"/>
+    <fullyQualifiedTypeName name="java.io.FileNotFoundException"/>
+    <fullyQualifiedTypeName name="java.io.InputStream"/>
+    <fullyQualifiedTypeName name="com.betacom.sql.MainSql"/>
+    <fullyQualifiedTypeName name="dto.SocioDTO"/>
+    <fullyQualifiedTypeName name="com.betacom.jpa.pojo.Certificato"/>
+    <fullyQualifiedTypeName name="jakarta.persistence.FetchType"/>
+    <fullyQualifiedTypeName name="com.betacom.jpa.repository.iAbbonamentoRepository"/>
+    <fullyQualifiedTypeName name="com.betacom.jpa.service.interfaces.iSocioService"/>
+    <fullyQualifiedTypeName name="com.betacom.jpa.process.ProcessTestJpa"/>
+    <fullyQualifiedTypeName name="com.betacom.jpa.pojo.Attivita"/>
+    <fullyQualifiedTypeName name="com.betacom.projectJpaCar.exception.AcademyException"/>
+    <fullyQualifiedTypeName name="org.springframework.jdbc.core.BeanPropertyRowMapper"/>
+    <fullyQualifiedTypeName name="org.junit.jupiter.api.Test"/>
+    <fullyQualifiedTypeName name="jakarta.persistence.Id"/>
+    <fullyQualifiedTypeName name="jakarta.persistence.GenerationType"/>
+    <fullyQualifiedTypeName name="org.assertj.core.api.Assertions"/>
+    <fullyQualifiedTypeName name="org.junit.jupiter.api.MethodOrderer"/>
+    <fullyQualifiedTypeName name="org.junit.jupiter.api.MethodOrderer.OrderAnnotation"/>
+    <fullyQualifiedTypeName name="org.slf4j.LoggerFactory"/>
+    <fullyQualifiedTypeName name="com.betacom.front_end.utilities.WebUtils"/>
+    <fullyQualifiedTypeName name="org.springframework.security.core.userdetails.User"/>
+    <fullyQualifiedTypeName name="org.springframework.security.core.userdetails.UserDetails"/>
+    <fullyQualifiedTypeName name="java.util.stream.Collectors"/>
+</qualifiedTypeNameHistroy>

@@ -1,0 +1,7 @@
+package com.betacom.processi.interfaces;
+
+public interface MyInterface {
+	
+	
+
+}

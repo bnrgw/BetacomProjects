@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;User.java&apos; to &apos;projectCSV/src/com.betacom.CSV.object&apos;&#x0D;&#x0A;- Original project: &apos;myProject&apos;&#x0D;&#x0A;- Destination element: &apos;projectCSV/src/com.betacom.CSV.object&apos;&#x0D;&#x0A;- Original element: &apos;com.betacom.objects.User.java&apos;" description="Copy compilation unit" destination="=projectCSV/src&lt;com.betacom.CSV.object" element1="/src&lt;com.betacom.objects{User.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1718286863780" units="1" version="1.0"/>
+</session>

@@ -1,0 +1,22 @@
+import com.betacom.objects.BMW;
+import com.betacom.objects.Fiat500;
+
+public class MainAbtractInterface {
+
+	public static void main(String[] args) {
+		
+		Fiat500 c = new Fiat500();
+		c.setModel("500");
+		c.freni();
+		c.speed();
+		System.out.println("Model :" + c.getModel());
+
+		BMW b = new BMW();
+		b.setColor("verde");
+		b.freni();
+		b.speed();
+		System.out.println("Color :" + b.getColor());
+		
+	}
+
+}

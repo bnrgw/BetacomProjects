@@ -1,0 +1,289 @@
+package com.betacom.luxebijoux.be.controller;
+
+import java.sql.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.betacom.luxebijoux.be.dto.ItemDTO;
+import com.betacom.luxebijoux.be.dto.OrderListDTO;
+import com.betacom.luxebijoux.be.dto.UserProfileDTO;
+import com.betacom.luxebijoux.be.pojo.OrderList;
+import com.betacom.luxebijoux.be.request.OrderListReq;
+import com.betacom.luxebijoux.be.request.PaymentRequest;
+import com.betacom.luxebijoux.be.response.Response;
+import com.betacom.luxebijoux.be.response.ResponseBase;
+import com.betacom.luxebijoux.be.response.ResponseObject;
+import com.betacom.luxebijoux.be.service.implementations.OrderListServiceImplementation;
+import com.betacom.luxebijoux.be.service.interfaces.IOrderListService;
+
+
+
+
+@RestController
+@RequestMapping("/rest/orders")
+public class OrderListController {
+	
+	@Autowired
+	private OrderListServiceImplementation orderListService;
+	@Autowired
+	IOrderListService orderS;
+	
+	//CART //da guardare
+	@PostMapping("/removeFromCart")
+	public ResponseBase removeItemFromoOrderList(@RequestBody OrderListReq req) {
+		ResponseBase resp = new ResponseBase();
+		resp.setRc(true);
+		Set<ItemDTO> dto = req.getItem();
+		
+		OrderListDTO orderDto = req.getOrder();
+		try {
+			for(ItemDTO i : dto) {
+				orderS.removeItemFromOrderList(i, orderDto);
+			}
+		} catch (Exception e) {
+			resp.setRc(false);
+			resp.setMsg(e.getMessage());
+		}
+		return resp;
+	}
+	
+	//da guardare
+	@PostMapping("/subtractFromCart")
+	public ResponseBase subtractItemFromoOrderList(@RequestBody OrderListReq req) {
+		ResponseBase resp = new ResponseBase();
+		resp.setRc(true);
+		Set<ItemDTO> dto = req.getItem();
+		OrderListDTO orderDto = req.getOrder();
+		try {
+			for(ItemDTO i : dto) {
+				orderS.subtractItemFromOrderList(i, orderDto);
+			}
+		} catch (Exception e) {
+			resp.setRc(false);
+			resp.setMsg(e.getMessage());
+		}
+		return resp;
+	}
+	//da guardare
+	@PostMapping("/clearCart")
+	public ResponseBase removeItemFromOrderList(@RequestBody OrderListDTO orderDto) {
+		ResponseBase resp = new ResponseBase();
+		resp.setRc(true);
+		
+		try {
+			orderS.cleanOrderList(orderDto);
+		} catch (Exception e) {
+			resp.setRc(false);
+			resp.setMsg(e.getMessage());
+		}
+		return resp;
+	}
+	//da guardare
+	@PostMapping("/emptyCart")
+    public ResponseBase clearOrder(@RequestBody OrderListDTO order) {
+		ResponseBase resp = new ResponseBase();
+		resp.setRc(true);
+		
+		try {
+			orderListService.cleanOrderList(order);
+			
+		} catch (Exception e) {
+			resp.setRc(false);
+			resp.setMsg(e.getMessage());
+		}
+        return resp;
+    }
+	
+	//READ
+	
+	@GetMapping("/listAll")
+	public Response<OrderListDTO> getAllOrders() {
+		Response<OrderListDTO> resp = new Response<OrderListDTO>();
+		resp.setRc(true);
+		
+		try {
+			resp.setDati(orderListService.getAll());
+		} catch (Exception e) {
+			resp.setMsg(e.getMessage());
+			resp.setRc(false);
+		}
+		
+		return resp;
+	}
+	
+    // Trova ordini con un totale maggiore di una certa somma -- valutare
+    @GetMapping("/total/greater")
+    public Response<OrderListDTO> getOrdersByGrandTotal(@RequestBody OrderListDTO dto) {
+    	Response<OrderListDTO> resp = new Response<OrderListDTO>();
+		resp.setRc(true);
+		try {
+			resp.setDati(orderListService.findByGrandTotalGreaterThan(dto));
+		} catch (Exception e) {
+			resp.setMsg(e.getMessage());
+			resp.setRc(false);
+		}
+		
+		return resp;
+    }
+
+    @PostMapping("/date/desc")
+    public Response<OrderListDTO> getOrdersByDateDesc(@RequestBody UserProfileDTO user) {
+    	
+    	Response<OrderListDTO> resp = new Response<OrderListDTO>();
+		resp.setRc(true);
+		try {
+			resp.setDati(orderListService.findAllByOrderByBuyDateDesc(user));
+		} catch (Exception e) {
+			resp.setMsg(e.getMessage());
+			resp.setRc(false);
+		}
+		
+		return resp;
+    }
+
+    @PostMapping("/state")
+    public Response<OrderListDTO> getOrdersByStatus(@RequestBody OrderListDTO dto) {
+    	
+    	Response<OrderListDTO> resp = new Response<OrderListDTO>();
+		resp.setRc(true);
+		try {
+			resp.setDati(orderListService.findByState(dto.getState()));
+		} catch (Exception e) {
+			resp.setMsg(e.getMessage());
+			resp.setRc(false);
+		}
+		
+		return resp;
+    }
+
+    // Trova ordini con data di acquisto compresa tra due date
+//    @GetMapping("/date")
+//    public Response<OrderList> getOrdersByDateRange(@RequestParam("startDate") Date startDate, @RequestParam("endDate") Date endDate) {
+//    	Response<OrderListDTO> resp = new Response<OrderListDTO>();
+//		resp.setRc(true);
+//		try {
+//			List<OrderList> orders = orderListService.findByBuyDateBetween(startDate, endDate);
+//			resp.setDati(orders);
+//		} catch (Exception e) {
+//			resp.setMsg(e.getMessage());
+//			resp.setRc(false);
+//		}
+//		
+//		return resp;
+//    	
+//        return orders.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(orders);
+//    }
+
+    @GetMapping("/code")
+    public ResponseObject<OrderListDTO> getOrderByCode(@RequestParam String code) {
+    	ResponseObject<OrderListDTO> resp = new ResponseObject<OrderListDTO>();
+		resp.setRc(true);
+		try {
+			resp.setDati(orderListService.findByCodeOrder(code));
+		} catch (Exception e) {
+			resp.setMsg(e.getMessage());
+			resp.setRc(false);
+		}
+		
+		return resp;
+    }
+
+    // CREATE UPDATE DELETE
+	
+
+    @PostMapping("/createUpdate")
+    public ResponseBase createUpdateOrder(@RequestBody OrderListReq orderListReq) {
+
+        ResponseBase resp = new ResponseBase();
+        resp.setRc(true);
+        try{
+            orderListService.createUpdate(orderListReq);
+        }
+        catch(Exception e){
+           resp.setRc(false);
+           resp.setMsg(e.getMessage());
+        }
+        return resp;
+
+    }
+
+    @PostMapping("/delete")
+    public ResponseBase delete(@RequestBody OrderListDTO dto) {
+    	 ResponseBase resp = new ResponseBase();
+         resp.setRc(true);
+         try{
+             orderListService.cancelOrder(dto);
+         }
+         catch(Exception e){
+            resp.setRc(false);
+            resp.setMsg(e.getMessage());
+         }
+         return resp;
+    }
+    //USER
+
+
+    @PostMapping("/forceDelete")
+    public ResponseBase forceDelete(@RequestBody OrderListDTO dto) {
+    	 ResponseBase resp = new ResponseBase();
+         resp.setRc(true);
+         try{
+             orderListService.delete(dto);
+         }
+         catch(Exception e){
+            resp.setRc(false);
+            resp.setMsg(e.getMessage());
+         }
+         return resp;
+    }
+    // Trova ordini associati ad un determinato utente
+    @PostMapping("/user/orders")
+    public Response<OrderListDTO> getOrdersByUserId(@RequestBody UserProfileDTO dto) {
+    	Response<OrderListDTO> resp = new Response<OrderListDTO>();
+    	resp.setRc(true);
+    	List<OrderListDTO> orders = null;
+    	try {
+    		orders = orderListService.findByUser(dto);
+		} catch (Exception e) {
+			resp.setRc(false);
+			resp.setMsg(e.getMessage());
+		}
+        resp.setDati(orders);
+        return resp;
+    }
+
+    @PostMapping("/order/payment")
+    public ResponseBase payOrder(@RequestBody PaymentRequest req) {
+    	ResponseBase resp = new ResponseBase();
+    	resp.setRc(true);
+    	try {
+			orderListService.payOrder(req);
+		} catch (Exception e) {
+			resp.setRc(false);
+			resp.setMsg(e.getMessage());
+		}
+    	return resp;
+    }
+// @deprecated
+//    // Rimuove un item da un ordine
+//    @PostMapping("/removeItem")
+//    public ResponseEntity<Boolean> removeItemFromOrder(@RequestBody ItemDTO item, @RequestBody OrderListDTO order) {
+//        boolean result = orderListService.removeItemFromOrderList(item, order);
+//        return ResponseEntity.ok(result);
+//    }
+//
+//    // Sottrae un item da un ordine
+//    @PostMapping("/subtractItem")
+//    public ResponseEntity<Boolean> subtractItemFromOrder(@RequestBody ItemDTO item, @RequestBody OrderListDTO order) {
+//        boolean result = orderListService.subtractItemFromOrderList(item, order);
+//        return ResponseEntity.ok(result);
+//    }
+
+	
+}
+

@@ -1,0 +1,71 @@
+package com.betacom.car.servizi.implementazione;
+
+import java.util.Date;
+
+import com.betacom.car.exception.AcademyException;
+import com.betacom.car.oggetti.Macchina;
+import com.betacom.car.oggetti.Veicolo;
+import com.betacom.car.oggetti.singleton.Mysingleton;
+import com.betacom.car.serviziinterface.GestioneVeicolo;
+
+public class GestioneMacchina implements GestioneVeicolo{
+
+	@Override
+	public Veicolo createVeicolo(Veicolo param) throws  AcademyException {
+			
+			if(controlTipoMacchina(param.getTipoVeicolo())) {
+				throw new AcademyException("Tipo macchina non valido");
+			}
+				
+			param.setDataCreazione(new Date());
+			
+			 param.setId(Mysingleton.getInstance().getId());
+			 
+			 Mysingleton.getInstance().updateList(param);
+		
+		return param;
+		
+		}
+	
+	@Override
+	public void removeVeicolo(Integer id) throws AcademyException {
+		if (!Mysingleton.getInstance().removeItem(id))
+			throw new AcademyException("ID non trovata per remove");
+		//if(car =instanceof(Macchina)) serve per verificare il tipo di veicolo
+	}
+	@Override
+	public Veicolo getVeicolo(Integer id) throws AcademyException{
+		 return Mysingleton.getInstance().getItem(id);
+	}
+	
+	public boolean controlTipoMacchina(String tipoVeicolo) {
+		boolean rc = false;
+		for(String tm:Mysingleton.getInstance().getTipoMacchina()) {
+			if(tm.equals(tipoVeicolo)) {
+			rc = true;}
+			 
+		}
+		return rc;
+	}
+	/*public String controllaTipoVeicolo(Veicolo param) {
+		
+		Macchina mac = (Macchina)param;
+		if(mac.getCc() == null || mac.getNumeroPorte() == null || mac.getTarga() == null) {
+			throw new AcademyException("numero porte,cilindrata e targa non può essere null");
+		
+		}	return "Macchina";
+		
+	}*/
+		
+	}
+	
+//	if(!Mysingleton.getinstance(.controlTipoMachina(param).getTipoVehivolo()))
+	//	throw new Academyexception("Tipo macchina invalida")
+ /*public Macchina createMacchina(Macchina param) {
+	 Veicolo veicolo = createVeicolo(param);
+ }*/
+	
+	
+
+
+

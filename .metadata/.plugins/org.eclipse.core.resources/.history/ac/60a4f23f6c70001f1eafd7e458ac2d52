@@ -1,0 +1,720 @@
+package com.betacom.luxebijoux.be.service.implementations;
+
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.betacom.luxebijoux.be.dto.AddressDTO;
+import com.betacom.luxebijoux.be.dto.CategoryDTO;
+import com.betacom.luxebijoux.be.dto.ColourDTO;
+import com.betacom.luxebijoux.be.dto.ItemDTO;
+import com.betacom.luxebijoux.be.dto.MaterialDTO;
+import com.betacom.luxebijoux.be.dto.OrderItemDTO;
+import com.betacom.luxebijoux.be.dto.OrderListDTO;
+import com.betacom.luxebijoux.be.dto.PaymentMethodDTO;
+import com.betacom.luxebijoux.be.dto.StateDTO;
+import com.betacom.luxebijoux.be.dto.UserProfileDTO;
+import com.betacom.luxebijoux.be.pojo.Address;
+import com.betacom.luxebijoux.be.pojo.Category;
+import com.betacom.luxebijoux.be.pojo.Colour;
+import com.betacom.luxebijoux.be.pojo.Item;
+import com.betacom.luxebijoux.be.pojo.Material;
+import com.betacom.luxebijoux.be.pojo.OrderItem;
+import com.betacom.luxebijoux.be.pojo.OrderItemId;
+import com.betacom.luxebijoux.be.pojo.OrderList;
+import com.betacom.luxebijoux.be.pojo.PaymentMethod;
+import com.betacom.luxebijoux.be.pojo.State;
+import com.betacom.luxebijoux.be.pojo.UserProfile;
+import com.betacom.luxebijoux.be.repository.IAddressRepository;
+import com.betacom.luxebijoux.be.repository.IItemRepository;
+import com.betacom.luxebijoux.be.repository.IOrderItemRepository;
+import com.betacom.luxebijoux.be.repository.IOrderListRepository;
+import com.betacom.luxebijoux.be.repository.IPaymentMethodRepository;
+import com.betacom.luxebijoux.be.repository.IStateRepository;
+import com.betacom.luxebijoux.be.repository.IUserProfileRepository;
+import com.betacom.luxebijoux.be.request.OrderListReq;
+import com.betacom.luxebijoux.be.request.PaymentRequest;
+import com.betacom.luxebijoux.be.service.interfaces.IOrderListService;
+
+import ch.qos.logback.core.util.Duration;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+
+@Service
+public class OrderListServiceImplementation implements IOrderListService {
+
+	@Autowired
+	IOrderListRepository orderListRepository;
+	@Autowired
+	IItemRepository itemRepository;
+	@Autowired
+	IOrderItemRepository orderItemRepository;
+	@Autowired
+	IAddressRepository addressRepository;
+	@Autowired
+	IUserProfileRepository userProfileRepository;
+	@Autowired
+	IStateRepository stateR;
+	@Autowired
+	IPaymentMethodRepository paymentR;
+	private  SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+	
+	@Override
+	public List<OrderListDTO> getAll() {
+		List<OrderList> orders = orderListRepository.findAll();
+		return orders.stream().map(this::toOrderListDTO).toList();
+	}
+
+
+	@Override
+	@Transactional
+
+	public void createUpdate(OrderListReq orderListReq) throws Exception {
+
+		OrderList order;
+		Set<OrderItem> sOi = new HashSet<OrderItem>();
+		
+		Optional<UserProfile> user = userProfileRepository.findByUsername(orderListReq.getUser().getUsername());
+		
+		// Se l'utente non viene trovato allora esco.
+		if(user.isEmpty()) {
+			throw new Exception("User not found!!");
+		}
+
+		Optional<OrderList> orderList = orderListRepository.findByCodeOrder(orderListReq.getOrder().getCodeOrder());
+
+		if (!orderList.isEmpty()) {
+			order = orderList.get();
+			if(orderListReq.getOrder().getBuyDate() != null) {
+				order.setBuyDate(orderListReq.getOrder().getBuyDate());
+			}
+			if(orderListReq.getOrder().getState() != null) {
+				if( orderListReq.getOrder().getState().getDescription() != "carrello" || orderListReq.getOrder().getState().getDescription() != null) {
+					
+					Optional<State> state = stateR.findByDescription(orderListReq.getOrder().getState().getDescription());
+					if(state.isEmpty()) {
+						throw new Exception("stato non trovato");
+					}
+					order.setIdState(state.get());				
+				}
+			}
+			
+			sOi = order.getOrderItem();
+		} else {
+			order = new OrderList();
+
+			order.setAddDate(orderListReq.getOrder().getAddDate());
+			order.setBuyDate(orderListReq.getOrder().getBuyDate());
+			order.setCodeOrder(orderListReq.getOrder().getCodeOrder());
+			order.setIdState(stateR.findByDescription("carrello").get());
+			order.setIsProcessed(orderListReq.getOrder().getIsProcessed() == null ? false 
+								: orderListReq.getOrder().getIsProcessed());
+			order.setGrandTotal(0.00);
+			order.setUser(user.get());		
+
+			//Salvo il carrello
+			
+			order = orderListRepository.save(order);
+			
+		}
+			
+		Set<Item> i = orderListReq.getItem().stream().map(item -> itemRepository.findByBarcode(item.getBarcode()))
+				.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
+		
+		if (i.isEmpty()) {
+			throw new Exception();
+		}
+		
+		for (Item it : i) {
+			OrderItem oi = new OrderItem();
+			OrderItemId id = new OrderItemId(it.getId(), order.getId());
+			Optional<OrderItem> junctionTable = orderItemRepository.findById(id);
+			
+			if(junctionTable.isEmpty()) {
+				oi.setIdItem(it);
+				oi.setIdOrder(order);
+				oi.setPurchasedQuantity(1);
+			}else {
+				oi = junctionTable.get();
+				oi.setPurchasedQuantity(oi.getPurchasedQuantity()+1);
+			}
+			oi.setId(id);
+			
+			sOi.add(oi);			
+		}
+		
+		order.setOrderItem(sOi);
+
+		order.setGrandTotal(calcGrandTotal(sOi));
+		
+		orderListRepository.save(order);
+	}
+
+	@Override
+	public void delete(OrderListDTO dto) throws Exception {
+		String codeOrder = dto.getCodeOrder();
+
+		if (codeOrder.equals(null)) {
+			throw new Exception("ordine non valido");
+		}
+
+		Optional<OrderList> order = orderListRepository.findByCodeOrder(codeOrder);
+		if (!order.isEmpty()) {
+
+			orderListRepository.delete(order.get());
+		} else {
+			throw new Exception();
+		}
+	}
+	@Override
+	public void cancelOrder(OrderListDTO dto) throws Exception {
+		String codeOrder = dto.getCodeOrder();
+
+		if (codeOrder == null) {
+			throw new Exception("ordine non valido");
+		}
+
+		Optional<OrderList> order = orderListRepository.findByCodeOrder(codeOrder);
+		if (!order.isEmpty()) {
+			order.get().setIdState(stateR.findByDescription("annullato").get());
+			orderListRepository.save(order.get());
+		} else {
+			throw new Exception("impossibile completare l'operazione");
+		}
+	}
+
+	public Boolean setBuyDate(OrderListDTO dto) throws Exception {
+		
+		if(dto.getBuyDate() == null) {
+			throw new Exception("No date inserted");
+		}
+		
+		Optional<OrderList> o = orderListRepository.findByCodeOrder(dto.getCodeOrder());
+		
+		if(o.isEmpty()) {
+			throw new Exception("No order found");
+		}
+		
+		OrderList order = o.get();
+		order.setBuyDate(dto.getBuyDate());
+		
+		try {			
+			OrderList orderList = orderListRepository.save(order);
+		}catch(Exception e) {
+			throw new Exception("An error occurred while saving...");
+		}
+		
+		return true;
+	}
+
+	@Override
+	public List<OrderListDTO> findByState(StateDTO s) {
+		List<OrderList> orders = new ArrayList<OrderList>();
+		try {
+			Optional<State> state = stateR.findByDescription(s.getDescription());
+			if(!state.isEmpty()) {
+				orders = orderListRepository.findByIdState(state.get());
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return orders.stream().map( o -> toOrderListDTO(o)).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<OrderListDTO> findByBuyDateBetween(String startDate, String endDate) throws Exception {
+		Date sqlDateStart;
+		Date sqlDateEnd;
+		try {
+			sqlDateStart = new Date(dateFormat.parse(startDate).getTime());
+			sqlDateEnd = new Date(dateFormat.parse(endDate).getTime());
+		} 
+		catch (ParseException e) {
+			throw new Exception("Data invalida");
+		}
+		List<OrderList> orders = orderListRepository.findByBuyDateBetween(sqlDateStart, sqlDateEnd);
+		return orders.stream().map(o -> toOrderListDTO(o)).collect(Collectors.toList());
+	}
+
+	@Override
+	public OrderListDTO findByCodeOrder(String codeOrder) throws Exception {
+		Optional<OrderList> order = orderListRepository.findByCodeOrder(codeOrder);
+		if(order.isEmpty()) {
+			throw new Exception("order not found");
+		}
+		return toOrderListDTO(order.get());
+	}
+
+
+	private UserProfile toUserProfileEntity(UserProfileDTO userProfileDTO) {
+		UserProfile up = new UserProfile();
+		// up.setId(userProfileDTO.getId());
+		up.setIsAdmin(userProfileDTO.getIsAdmin());
+		up.setAddresses(userProfileRepository.findByUsername(userProfileDTO.getUsername()).get().getAddresses());
+		up.setMail(userProfileDTO.getEmail());
+		up.setOrders(orderListDTOInOrderList(userProfileDTO.getOrder()));
+		up.setPayments(setPaymentsDTOInSetPayment(userProfileDTO.getPayment()));
+		up.setPhone(userProfileDTO.getPhone());
+		up.setPwd(userProfileDTO.getPwd());
+		up.setUsername(userProfileDTO.getUsername());
+		return up;
+	}
+
+	@Override
+	public List<OrderListDTO> findByGrandTotalGreaterThan(OrderListDTO orderList) {
+		List<OrderList> order = orderListRepository.findByGrandTotalGreaterThan(orderList.getGrandTotal());
+		return order.stream().map( o -> toOrderListDTO(o)).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<OrderListDTO> findAllByOrderByBuyDateDesc(UserProfileDTO user) {
+		List<OrderList> order = new ArrayList<OrderList>();
+		if(user.getUsername() == null) {
+			order = orderListRepository.findAllByOrderByBuyDateDesc();
+		} else {
+			order = orderListRepository.findAllByOrderByBuyDateDescUser(user.getUsername());
+		}
+		return order.stream().map( o -> toOrderListDTO(o)).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<OrderListDTO> findByUser(UserProfileDTO dto) throws Exception {
+		Optional<UserProfile> userProfile = userProfileRepository.findByUsername(dto.getUsername());
+		if(userProfile.isEmpty()) {
+			throw new Exception("user not found");
+		}
+		List<OrderList> orders = orderListRepository.findByUser(userProfile.get());
+		return orders.stream()
+				.map(this::toOrderListDTO).collect(Collectors.toList());
+	}
+
+	// Metodo di conversione da UserProfileDTO a UserProfile
+	private UserProfile convertUserProfileDTOToEntity(UserProfileDTO dto) {
+		UserProfile userProfile = new UserProfile();
+		// userProfile.setId(dto.getId());
+		userProfile.setIsAdmin(dto.getIsAdmin());
+		userProfile.setUsername(dto.getUsername());
+		userProfile.setPhone(dto.getPhone());
+		userProfile.setPwd(dto.getPwd());
+		userProfile.setMail(dto.getEmail());
+		return userProfile;
+	}
+
+	private OrderListDTO toOrderListDTO(OrderList orderList) {
+		OrderListDTO olDTO = new OrderListDTO();
+		olDTO.setId(orderList.getId());
+		olDTO.setIsProcessed(orderList.getIsProcessed());
+		olDTO.setCodeOrder(orderList.getCodeOrder());
+		olDTO.setGrandTotal(orderList.getGrandTotal());
+		olDTO.setAddDate(orderList.getAddDate());
+		olDTO.setBuyDate(orderList.getBuyDate());
+		Set<OrderListDTO> lista = new Set<OrderListDTO>();
+		olDTO.setOrderItem(orderList.stream()
+				.map(this::toOrderListDTO).collect(Collectors.toList());
+		//orderList.getOrderItem());toOrderItemDTO
+		olDTO.setOrderItem(lista);
+		return olDTO;
+	}
+
+	private OrderList toOrderListEntity(OrderListDTO orderListDTO, UserProfileDTO userDTO, Set<Address> setAddress) {
+		OrderList ol = new OrderList();
+		ol.setIsProcessed(orderListDTO.getIsProcessed());
+		ol.setGrandTotal(orderListDTO.getGrandTotal());
+		ol.setCodeOrder(orderListDTO.getCodeOrder());
+		ol.setAddDate(orderListDTO.getAddDate());
+		ol.setBuyDate(orderListDTO.getBuyDate());
+		ol.setOrderItem(orderListDTO.getOrderItem().stream().map(this::toOrderItemEntity).collect(Collectors.toSet()));
+		ol.setUser(toUserProfile(userDTO));
+		return ol;
+
+	}
+
+	private OrderItem toOrderItemEntity(OrderItemDTO orderItemDTO) {
+		OrderItem oi = new OrderItem();
+		// oi.setId(orderItemDTO.getId());
+		oi.setPurchasedQuantity(orderItemDTO.getPurchasedQuantity());
+		return oi;
+	}
+
+	// private Set<Address> setAddressDTOInSetAddress(Set<AddressDTO> addresses){
+	// return addresses.stream()
+	// .map(a -> {Address addr = new Address();
+	// addr.setStreetNumber(a.getStreetNumber());
+	// addr.setStreetName(a.getStreetName());
+	// addr.setPhoneNumber(a.getPhoneNumber());
+	// addr.setCity(a.getCity());
+	// addr.setCountry(a.getCountry());
+	// addr.setName(a.getName());
+	// addr.setSurname(a.getSurname());
+	// addr.setZip(a.getZip());
+	// return addr;})
+	// .collect(Collectors.toSet());
+	// }
+
+	private Set<OrderList> orderListDTOInOrderList(Set<OrderListDTO> orderListDTOs) {
+		return orderListDTOs.stream().map(dto -> {
+			OrderList orderList = new OrderList();
+			// orderList.setId(dto.getId());
+			orderList.setIsProcessed(dto.getIsProcessed());
+			orderList.setCodeOrder(dto.getCodeOrder());
+			orderList.setGrandTotal(dto.getGrandTotal());
+			orderList.setAddDate(dto.getAddDate());
+			orderList.setBuyDate(dto.getBuyDate());
+
+			if (dto.getOrderItem() != null) {
+				orderList.setOrderItem(dto.getOrderItem().stream().map(orderItemDTO -> {
+					OrderItem orderItem = new OrderItem();
+					// orderItem.setId(orderItemDTO.getId());
+					orderItem.setPurchasedQuantity((orderItemDTO.getPurchasedQuantity()));
+
+					return orderItem;
+				}).collect(Collectors.toSet()));
+			}
+
+			return orderList;
+		}).collect(Collectors.toSet());
+	}
+
+	private Set<PaymentMethod> setPaymentsDTOInSetPayment(Set<PaymentMethodDTO> paymentMethodDTOs) {
+		return paymentMethodDTOs.stream().map(dto -> {
+			PaymentMethod paymentMethod = new PaymentMethod();
+			// paymentMethod.setId(dto.getId());
+			paymentMethod.setName(dto.getName());
+			paymentMethod.setSurname(dto.getSurname());
+			paymentMethod.setCardNumber(dto.getCardNumber());
+			paymentMethod.setCvv(dto.getCcv());
+			paymentMethod.setExpirationDate(dto.getExpirationDate());
+
+			return paymentMethod;
+		}).collect(Collectors.toSet());
+	}
+
+	@Override
+	public boolean removeItemFromOrderList(ItemDTO itemdto, OrderListDTO dto) {
+		Optional<OrderList> order = orderListRepository.findByCodeOrder(dto.getCodeOrder());
+		Optional<Item> item = itemRepository.findByBarcode(itemdto.getBarcode());
+		List<OrderItem> orderItems = orderItemRepository.findByidOrder(order.get());
+		if (order.isEmpty()) {
+			return false;
+		}
+		if (item.isEmpty()) {
+			return false;
+		}
+
+		for (OrderItem o : orderItems) {
+			if (o.getIdItem() == item.get()) {
+
+				orderItemRepository.delete(o);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean subtractItemFromOrderList(ItemDTO itemdto, OrderListDTO dto) {
+		Optional<OrderList> order = orderListRepository.findByCodeOrder(dto.getCodeOrder());
+		Optional<Item> item = itemRepository.findByBarcode(itemdto.getBarcode());
+		List<OrderItem> orderItems = orderItemRepository.findByidOrder(order.get());
+		if (order.isEmpty()) {
+			return false;
+		}
+		if (item.isEmpty()) {
+			return false;
+		}
+
+		for (OrderItem o : orderItems) {
+			if (o.getIdItem() == item.get()) {
+				o.setPurchasedQuantity(o.getPurchasedQuantity() - 1);
+
+				return true;
+			}
+		}
+		orderItemRepository.saveAll(orderItems);
+		return true;
+	}
+
+	@Override
+	public boolean cleanOrderList(OrderListDTO dto) {
+		Optional<OrderList> order = orderListRepository.findByCodeOrder(dto.getCodeOrder());
+		List<OrderItem> orderItems = orderItemRepository.findByidOrder(order.get());
+
+		if (order.isEmpty()) {
+			return false;
+		}
+
+		orderItemRepository.deleteAllInBatch(orderItems);
+
+		return true;
+	}
+
+	// Metodi di conversione
+
+	public UserProfile toUserProfile(UserProfileDTO userProfileDTO) {
+		UserProfile userProfile = new UserProfile();
+		userProfile.setIsAdmin(userProfileDTO.getIsAdmin());
+		userProfile.setUsername(userProfile.getUsername());
+		userProfile.setPhone(userProfileDTO.getPhone());
+		userProfile.setPwd(userProfileDTO.getPwd());
+		userProfile.setMail(userProfileDTO.getEmail());
+		userProfile
+				.setAddresses(userProfileRepository.findByUsername(userProfileDTO.getUsername()).get().getAddresses());
+		userProfile.setPayments(
+				userProfileDTO.getPayment().stream().map(this::toPaymentMethod).collect(Collectors.toSet()));
+		userProfile.setOrders(userProfileDTO.getOrder().stream().map(this::toOrderList).collect(Collectors.toSet()));
+		return userProfile;
+	}
+
+	public Address toAddress(AddressDTO addressDTO) {
+		if (addressDTO == null) {
+			return null;
+		}
+
+		Address address = new Address();
+		address.setStreetNumber(addressDTO.getStreetNumber());
+		address.setStreetName(addressDTO.getStreetName());
+		address.setPhoneNumber(addressDTO.getPhoneNumber());
+		address.setCity(addressDTO.getCity());
+		address.setCountry(addressDTO.getCountry());
+		address.setName(addressDTO.getName());
+		address.setSurname(addressDTO.getSurname());
+		address.setZip(addressDTO.getZip());
+
+		return address;
+	}
+
+	// Da PaymentMethodDTO a PaymentMethod
+	public PaymentMethod toPaymentMethod(PaymentMethodDTO paymentMethodDTO) {
+		if (paymentMethodDTO == null) {
+			return null;
+		}
+
+		PaymentMethod paymentMethod = new PaymentMethod();
+		paymentMethod.setId(paymentMethodDTO.getId());
+		paymentMethod.setName(paymentMethodDTO.getName());
+		paymentMethod.setSurname(paymentMethodDTO.getSurname());
+		paymentMethod.setCardNumber(paymentMethodDTO.getCardNumber());
+		paymentMethod.setCvv(paymentMethodDTO.getCcv());
+		paymentMethod.setExpirationDate(paymentMethodDTO.getExpirationDate());
+
+		return paymentMethod;
+	}
+
+	// Da OrderListDTO a OrderList
+	public OrderList toOrderList(OrderListDTO orderListDTO) {
+		if (orderListDTO == null) {
+			return null;
+		}
+
+		OrderList orderList = new OrderList();
+		// orderList.setId(orderListDTO.getId());
+		orderList.setIsProcessed(orderListDTO.getIsProcessed());
+		orderList.setCodeOrder(orderListDTO.getCodeOrder());
+		orderList.setGrandTotal(orderListDTO.getGrandTotal());
+		orderList.setAddDate(orderListDTO.getAddDate());
+		orderList.setBuyDate(orderListDTO.getBuyDate());
+
+		Set<OrderItem> orderItems = orderListDTO.getOrderItem().stream().map(this::toOrderItem)
+				.collect(Collectors.toSet());
+		orderList.setOrderItem(orderItems);
+
+		return orderList;
+	}
+	
+
+	public OrderItemDTO toOrderItemDTO(OrderItem orderItem) {
+		if (orderItem == null) {
+			return null;
+		}
+
+		OrderItemDTO orderItemDTO = new OrderItemDTO();
+		// orderItemDTO.setId(orderItem.getId());
+		orderItemDTO.setPurchasedQuantity(orderItem.getPurchasedQuantity());
+
+		// OrderListDTO orderListDTO = toOrderListDTO(orderItem.getOrders());
+		// orderItemDTO.setOrder(orderListDTO);
+
+		return orderItemDTO;
+	}
+
+	public OrderItem toOrderItem(OrderItemDTO orderItemDTO) {
+		if (orderItemDTO == null) {
+			return null;
+		}
+
+		OrderItem orderItem = new OrderItem();
+		// orderItem.setId(orderItemDTO.getId());
+		orderItem.setPurchasedQuantity(orderItemDTO.getPurchasedQuantity());
+
+		// OrderList orderList = toOrderList(orderItemDTO.getOrder());
+		// orderItem.setOrder(orderList);
+
+		return orderItem;
+	}
+
+	public static Set<Item> toSetItem(Set<ItemDTO> itemDTOs) {
+		Set<Item> items = new HashSet<>();
+
+		for (ItemDTO itemDTO : itemDTOs) {
+			items.add(toItem(itemDTO));
+		}
+
+		return items;
+	}
+
+	private static Item toItem(ItemDTO itemDTO) {
+		Item item = new Item();
+
+		item.setId(itemDTO.getId());
+		item.setDescription(itemDTO.getDescription());
+		item.setItemSize(itemDTO.getItemSize());
+		item.setWeight(itemDTO.getWeight());
+		item.setPrice(itemDTO.getPrice());
+		item.setQuantity(itemDTO.getQuantity());
+		item.setSales(itemDTO.getSales());
+		item.setTitle(itemDTO.getTitle());
+		item.setBarcode(itemDTO.getBarcode());
+		item.setIsFragile(itemDTO.getIsFragile());
+		item.setEntryDate(itemDTO.getEntryDate());
+
+		// Mappatura delle relazioni (Colour, Category, Material)
+		item.setColours(toSetColour(itemDTO.getColours()));
+		item.setCategories(toSetCategory(itemDTO.getCategories()));
+		item.setMaterials(toSetMaterial(itemDTO.getMaterials()));
+
+		return item;
+	}
+
+	private static Set<Colour> toSetColour(Set<ColourDTO> colourDTOs) {
+		Set<Colour> colours = new HashSet<>();
+
+		if (colourDTOs != null) {
+			for (ColourDTO colourDTO : colourDTOs) {
+				Colour colour = new Colour();
+				colour.setId(colourDTO.getId());
+				colour.setDescription(colourDTO.getDescription());
+				colours.add(colour);
+			}
+		}
+
+		return colours;
+	}
+
+	private static Set<Category> toSetCategory(Set<CategoryDTO> categoryDTOs) {
+		Set<Category> categories = new HashSet<>();
+
+		if (categoryDTOs != null) {
+			for (CategoryDTO categoryDTO : categoryDTOs) {
+				Category category = new Category();
+				category.setId(categoryDTO.getId());
+				category.setDescription(categoryDTO.getDescription());
+
+				// Mappatura delle relazioni di categoria (genitore e figlio)
+				category.setParents(toSetCategory(categoryDTO.getCategoryParent()));
+				category.setChildren(toSetCategory(categoryDTO.getCategoryChild()));
+
+				categories.add(category);
+			}
+		}
+
+		return categories;
+	}
+
+	private static Set<Material> toSetMaterial(Set<MaterialDTO> materialDTOs) {
+		Set<Material> materials = new HashSet<>();
+
+		if (materialDTOs != null) {
+			for (MaterialDTO materialDTO : materialDTOs) {
+				Material material = new Material();
+				material.setId(materialDTO.getId());
+				material.setDescription(materialDTO.getDescription());
+				materials.add(material);
+			}
+		}
+
+		return materials;
+	}
+
+	private Set<OrderItem> toSetOrderItem(Set<ItemDTO> sItemDTOs) {
+		// Convert Set<ItemDTO> to Set<OrderItem>
+		Set<OrderItem> orderItems = new HashSet<>();
+
+		for (ItemDTO itemDTO : sItemDTOs) {
+
+			Item item = itemRepository.findByBarcode(itemDTO.getBarcode()).orElse(null);
+
+			if (item != null) {
+				OrderItem orderItem = new OrderItem();
+
+				OrderItemId orderItemId = new OrderItemId();
+				orderItemId.setIdItem(item.getId());
+				orderItemId.setIdOrder(null);
+				orderItem.setId(orderItemId);
+				orderItem.setIdItem(item);
+				orderItem.setIdOrder(null);
+
+				orderItem.setPurchasedQuantity(itemDTO.getQuantity());
+
+				orderItems.add(orderItem);
+			}
+		}
+
+		return orderItems;
+	}
+	
+	private Double calcGrandTotal(Set<OrderItem> items) {
+		
+		Double total = 0.0;
+		
+		for (OrderItem orderItem : items) {
+			Item item = itemRepository.findById(orderItem.getIdItem().getId()).get();
+			total += (item.getPrice()*(1.00-(item.getSales().doubleValue()/100)))*orderItem.getPurchasedQuantity();
+		}
+		
+		return total;
+		
+	}
+@Override
+	public boolean payOrder(PaymentRequest req) throws Exception {
+		
+		Optional<UserProfile> user = userProfileRepository.findByUsername(req.getUser().getUsername());
+		if(user.isEmpty()) {
+			throw new Exception("profilo inesistente");
+		}
+		Optional<OrderList> order = orderListRepository.findByCodeOrder(req.getOrder().getCodeOrder());
+		if(order.isEmpty()) {
+			throw new Exception("ordine inesistente");
+		}
+		Set<PaymentMethod> listPayment = paymentR.findByUsers(user.get());
+		if(listPayment.size() == 0) {
+			throw new Exception("nessun metodo di pagamento inserito");
+		}
+		Optional<PaymentMethod> pay = paymentR.findByCardNumber(req.getPayment().getCardNumber());
+		if(pay.isEmpty()) {
+			throw new Exception("metodo di pagamento sconosciuto/invalido");
+		}
+		listPayment.contains(pay);
+		
+		order.get().setIdState(stateR.findByDescription("confermato").get());
+		orderListRepository.save(order.get());
+		
+		return true;
+	}
+	
+	
+}

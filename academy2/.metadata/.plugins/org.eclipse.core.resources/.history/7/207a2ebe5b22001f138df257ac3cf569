@@ -1,0 +1,24 @@
+package com.betacom.processi.implementations;
+
+import com.betacom.objects.User;
+import com.betacom.processi.interfaces.MyInterface;
+import com.betacom.processi.interfaces.MyInterfaces2;
+
+public class UserProcess implements MyInterface, MyInterfaces2{
+
+	@Override
+	public void insertNewSalary(User user) {
+		if (user.getCognome().equalsIgnoreCase("smal"))
+			user.setSalary(10000L);
+		else
+			user.setSalary(1500L);
+		
+	}
+
+	@Override
+	public void displaySalary(User user) {
+		System.out.println("Salary:" + user.getSalary());
+		
+	}
+
+}

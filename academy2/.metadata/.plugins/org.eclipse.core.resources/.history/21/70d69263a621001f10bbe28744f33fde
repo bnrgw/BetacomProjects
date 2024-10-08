@@ -1,0 +1,70 @@
+package projecttest;
+
+import java.util.Scanner;
+
+public class Main {
+
+	public static void main(String[] args) {
+		/*
+		 * 		bit  byte  range di valore   cifre dopo la virgula
+		 * byte   8   1      -128 127
+		 * short 16   2      -32768  32767
+		 * int   32   4      +_ 2*(10)9
+		 * long  64   8      +_  9*(10)18
+		 * 
+		 *  float  32  4                        7
+		 *  double 64   8                       15
+		 *  boolean
+		 */
+		
+		boolean i= false;
+		byte    iByte = 127;
+		int     iInt  = 2_000_000_000;
+		long    iLong = 9_473_892_479_237L;
+		
+		float   iFloat = 5.345611f;
+		double  iDouble = 5.123552345657678;
+		
+		char    iChar  = 'f';
+		
+//		String  iString = "ciao come stai?";
+//		System.out.println(iString);
+//		
+//		System.out.println(iString.toUpperCase());
+		
+		Scanner sc = new Scanner(System.in);
+		String nome;
+		
+		System.out.println("Nome");
+		nome = sc.nextLine();
+		
+		
+	
+		System.out.println("Eta:");
+		int eta = sc.nextInt();
+		
+		String resto="";
+		
+		/*
+		 * operatori logici
+		 * &&  and
+		 * ||  or
+		 * < , > <= => 
+		 */
+			
+		
+		if (eta > 50)
+			resto = " e sono vecchio";
+		else 
+			resto = " e sono un ragazzino";
+		
+		System.out.printf("Ciao sono %s  %s " , nome ,resto);
+		
+		
+	
+		
+		
+		
+	}
+
+}

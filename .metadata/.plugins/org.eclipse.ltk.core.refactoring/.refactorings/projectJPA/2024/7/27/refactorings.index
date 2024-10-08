@@ -1,0 +1,43 @@
+1719927083267	Delete element
+1719927411971	Delete element
+1719927518687	Delete element
+1719927527686	Delete element
+1719931144347	Delete element
+1719931375869	Copy compilation unit
+1719931402368	Rename type 'Socio'
+1719936393113	Move file
+1719936476384	Rename package 'dto'
+1719936500932	Rename package 'implementazione'
+1719936525430	Rename package 'com.betacom.implementazione'
+1719936563234	Rename package 'interfaces'
+1719936581152	Rename package 'process'
+1719936600129	Rename package 'repository'
+1719936624593	Rename package 'service'
+1719998508317	Move compilation unit
+1720001818961	Delete element
+1720001909761	Move 'define.sql' to 'resources'
+1720003499315	Rename type 'SQLAcademyException'
+1720004238103	Rename type 'ProcessSocio'
+1720011298945	Delete element
+1720011352277	Copy package
+1720011374610	Copy package
+1720011388541	Delete element
+1720011399574	Delete element
+1720011422269	Delete element
+1720011481097	Copy compilation unit
+1720011500470	Copy compilation unit
+1720011532979	Delete element
+1720011595974	Delete element
+1720011604197	Delete element
+1720011626571	Copy package
+1720011678490	Rename package 'exception'
+1720011700508	Delete element
+1720099863283	Delete element
+1720169087451	Rename compilation unit 'SocioDTO.java'
+1720169100854	Rename compilation unit 'CertificatoDTO.java'
+1720169114752	Rename compilation unit 'AbbonamentoDTO.java'
+1720169896275	Delete element
+1720169915557	Delete element
+1720170206197	Delete element
+1720170277037	Rename type 'ISocioRipository'
+1720171071079	Delete element

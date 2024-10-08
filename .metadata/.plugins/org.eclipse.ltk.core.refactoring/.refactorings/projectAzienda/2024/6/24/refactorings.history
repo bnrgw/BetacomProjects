@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;com.betacom.azienda.dto.Dipendente&apos; to &apos;Istruttore&apos;&#x0D;&#x0A;- Original project: &apos;projectAzienda&apos;&#x0D;&#x0A;- Original element: &apos;com.betacom.azienda.dto.Dipendente&apos;&#x0D;&#x0A;- Renamed element: &apos;com.betacom.azienda.dto.Istruttore&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Rename similarly named elements&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;Dipendente&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;com.betacom.azienda.dto{Dipendente.java[Dipendente" matchStrategy="1" name="Istruttore" qualified="false" references="true" similarDeclarations="true" stamp="1718371160027" textual="false" version="1.0"/>
+</session>

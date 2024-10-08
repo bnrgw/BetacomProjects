@@ -1,0 +1,6 @@
+package com.betacom.objects;
+
+public class Impiegati extends User{
+	Long Salary;
+	
+}

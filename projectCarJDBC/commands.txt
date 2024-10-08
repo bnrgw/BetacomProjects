@@ -1,0 +1,2 @@
+SELECT Macchina 1,A-1
+INSERT Macchina 9,342hdd4,345 3,3,3,3,3,A-3,3,null,null

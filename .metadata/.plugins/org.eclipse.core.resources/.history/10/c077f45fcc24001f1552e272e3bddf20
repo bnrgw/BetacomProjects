@@ -1,0 +1,79 @@
+package com.betacom.car.servizi.implementazione;
+
+import java.util.Date;
+
+import com.betacom.car.exception.AcademyException;
+import com.betacom.car.oggetti.Bici;
+import com.betacom.car.oggetti.Macchina;
+import com.betacom.car.oggetti.Moto;
+import com.betacom.car.oggetti.Veicolo;
+import com.betacom.car.oggetti.singleton.Mysingleton;
+import com.betacom.car.serviziinterface.IGestionSystem;
+
+public class GestionSystem implements IGestionSystem{
+	
+	public void displayList() {
+		Mysingleton.getInstance().displayList();
+	}
+	
+	public void removeItem(Integer id) {
+		Mysingleton.getInstance().removeItem(id);
+	}
+
+
+public    Veicolo createVeicolo(Veicolo v) {
+	
+	 String tipoVeicolo =	controlTipoVeicolo(v);// controllo il tipo del vceicolo(macchina ,moto o bici)
+	   Veicolo ve = null;
+	if(v != null) {
+	    try {
+		     controlVeicolo(v);// controllo che il veicolo abbia tutti i parametri
+	    }catch  (AcademyException e) {
+		 System.out.println("Error" + " " + e.getMessage());
+	      
+          if(tipoVeicolo.equals("Macchina")) {
+	  
+	          try {
+			         ve = gm.createVeicolo(v);//se il veicolo
+		      }catch (AcademyException ex) {
+			 System.out.println("Error" + " " + ex.getMessage());
+		    }finally {
+			System.out.println("metodo create macchina eseguito");
+		 }
+	
+   }
+	
+	 
+}
+	}
+	return ve; 
+}
+
+public String controlTipoVeicolo(Veicolo v) {
+	if(v instanceof Macchina) {
+		return "Macchina";
+	}
+	if(v instanceof Moto) {
+		return "Moto";
+	}
+	
+	if(v instanceof Bici) {
+		return "Bici";
+	}
+	return null;
+}
+
+public Void controlVeicolo(Veicolo v) throws AcademyException{
+	// controllo tutti i campi del veicolo.
+	if(v.getNumeroRuote() == null || v.getVelocità() == null || v.getTipoAlimentazione()== null || v.getId() == null) {
+		throw new AcademyException("Numero ruote , velocità e tipo alimentazione obbligatorio per veicolo macchina");	
+	}
+	return null;
+}
+}
+
+// IL METODO CREATEVEICOLO DOVREBE VERIFICARE IL TIPO DI VEICOLO POI A SECONDA DEL TIPO PASSQARE4 AL METODO GESTIONE-M
+//public  Veicolo createVeicolo(Veicolo v) {
+// String tipo = tipoVeicolo(v);
+// if(tipo equals("Macchina")) gm.createVeicolo; //stessa cosa per moto e bici.
+
